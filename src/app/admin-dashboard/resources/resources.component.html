@@ -1,0 +1,169 @@
+<div class="max-w-4xl mx-auto px-4 py-10">
+  <!-- Starter Resources Section -->
+  <div class="bg-white rounded-2xl shadow-2xl border border-indigo-100 mb-8">
+    <div class="px-6 py-4 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-indigo-800">Starter Resources</h2>
+        <p class="text-sm text-indigo-500">Provide resources to help participants get started</p>
+      </div>
+      <button 
+        (click)="addStarterResource()" 
+        class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:from-indigo-700 hover:to-purple-700 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add Resource
+      </button>
+    </div>
+    <div class="p-6 grid gap-6">
+      <!-- Starter Resources List -->
+      <div *ngFor="let resource of starterResources" class="bg-indigo-50 rounded-xl shadow p-4 border border-indigo-200">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+          <input 
+            [(ngModel)]="resource.title" 
+            [ngModelOptions]="{standalone: true}"
+            class="text-base font-semibold p-2 border border-indigo-200 rounded-lg w-full md:mr-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            placeholder="Resource Title">
+          <div class="flex gap-2 items-center mt-2 md:mt-0">
+            <select 
+              [(ngModel)]="resource.type" 
+              [ngModelOptions]="{standalone: true}"
+              class="text-sm p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+              <option value="GitHub">GitHub</option>
+              <option value="Documentation">Documentation</option>
+              <option value="API">API</option>
+              <option value="Other">Other</option>
+            </select>
+            <button 
+              (click)="deleteResource(starterResources, resource.id)" 
+              class="text-red-500 hover:text-red-700 bg-white rounded-full p-2 shadow transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <input 
+          [(ngModel)]="resource.url" 
+          [ngModelOptions]="{standalone: true}"
+          class="text-sm w-full p-2 border border-indigo-200 rounded-lg mb-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          placeholder="Resource URL (e.g., https://github.com/example/repo)">
+        <textarea 
+          [(ngModel)]="resource.description" 
+          [ngModelOptions]="{standalone: true}"
+          rows="2" 
+          class="w-full px-3 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          placeholder="Describe this resource and how it helps participants"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommended Technologies Section -->
+  <div class="bg-white rounded-2xl shadow-2xl border border-indigo-100 mb-8">
+    <div class="px-6 py-4 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-indigo-800">Recommended Technologies</h2>
+        <p class="text-sm text-indigo-500">Suggest technologies participants can use</p>
+      </div>
+      <button 
+        (click)="addTechnology()" 
+        class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:from-indigo-700 hover:to-purple-700 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add Technology
+      </button>
+    </div>
+    <div class="p-6 grid gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div *ngFor="let tech of technologies" class="bg-indigo-50 rounded-xl shadow p-4 border border-indigo-200">
+          <div class="flex flex-col gap-2 mb-2">
+            <input 
+              [(ngModel)]="tech.name" 
+              [ngModelOptions]="{standalone: true}"
+              class="text-base font-semibold p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              placeholder="Technology Name">
+            <input 
+              [(ngModel)]="tech.description" 
+              [ngModelOptions]="{standalone: true}"
+              class="text-sm w-full p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              placeholder="Brief description">
+          </div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-sm text-indigo-700">Required</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [(ngModel)]="tech.required" [ngModelOptions]="{standalone: true}" class="sr-only peer" (change)="toggleRequired(tech)">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            </label>
+            <button 
+              (click)="deleteResource(technologies, tech.id)" 
+              class="text-red-500 hover:text-red-700 bg-white rounded-full p-2 shadow transition ml-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Learning Resources Section -->
+  <div class="bg-white rounded-2xl shadow-2xl border border-indigo-100 mb-8">
+    <div class="px-6 py-4 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-indigo-800">Learning Resources</h2>
+        <p class="text-sm text-indigo-500">Provide educational materials for participants</p>
+      </div>
+      <button 
+        (click)="addLearningResource()" 
+        class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:from-indigo-700 hover:to-purple-700 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add Resource
+      </button>
+    </div>
+    <div class="p-6 grid gap-6">
+      <div *ngFor="let resource of learningResources" class="bg-indigo-50 rounded-xl shadow p-4 border border-indigo-200">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+          <input 
+            [(ngModel)]="resource.title" 
+            [ngModelOptions]="{standalone: true}"
+            class="text-base font-semibold p-2 border border-indigo-200 rounded-lg w-full md:mr-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            placeholder="Resource Title">
+          <div class="flex gap-2 items-center mt-2 md:mt-0">
+            <select 
+              [(ngModel)]="resource.type" 
+              [ngModelOptions]="{standalone: true}"
+              class="text-sm p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+              <option value="Tutorial">Tutorial</option>
+              <option value="Article">Article</option>
+              <option value="Video">Video</option>
+              <option value="Course">Course</option>
+              <option value="Documentation">Documentation</option>
+            </select>
+            <button 
+              (click)="deleteResource(learningResources, resource.id)" 
+              class="text-red-500 hover:text-red-700 bg-white rounded-full p-2 shadow transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <input 
+          [(ngModel)]="resource.url" 
+          [ngModelOptions]="{standalone: true}"
+          class="text-sm w-full p-2 border border-indigo-200 rounded-lg mb-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          placeholder="Resource URL (e.g., https://learn.example.com/tutorial)">
+        <textarea 
+          [(ngModel)]="resource.description" 
+          [ngModelOptions]="{standalone: true}"
+          rows="2" 
+          class="w-full px-3 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          placeholder="Describe what participants will learn from this resource"></textarea>
+      </div>
+    </div>
+  </div>
+</div>

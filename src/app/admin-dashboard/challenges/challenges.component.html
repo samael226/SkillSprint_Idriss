@@ -1,1 +1,524 @@
-<p>challenges works!</p>
+<div *ngIf="!showCreateForm" class="container mx-auto px-4 py-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-indigo-900">Hackathon Management</h1>
+    
+    <div class="flex space-x-2">
+      <div class="relative">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search challenges..."
+          class="pl-3 pr-10 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        />
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="relative">
+        <button (click)="HackathonForm()" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 transition-all duration-300">
+          <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Create Challenge
+        </button>
+        
+      </div>
+
+      <button (click)="toggleCreateForm()" class="flex items-center space-x-2 px-4 py-2 border border-transparent rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <span>Create Hackathon</span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-indigo-100">
+    <table class="min-w-full divide-y divide-indigo-200">
+      <thead class="bg-gradient-to-r from-indigo-700 to-purple-700">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+            Challenge
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+            Status
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+            Teams
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+            Dates
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-indigo-100">
+        <tr *ngFor="let challenge of filteredChallenges" class="hover:bg-indigo-50 transition-colors duration-200">
+          <td class="px-6 py-4">
+            <div class="flex flex-col">
+              <div class="text-sm font-medium text-indigo-900">{{ challenge.title }}</div>
+              <div class="text-sm text-indigo-500">{{ challenge.description }}</div>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <span [ngClass]="['px-2 inline-flex text-xs leading-5 font-semibold rounded-full', getStatusClass(challenge.status)]">
+              {{ challenge.status }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-sm text-indigo-600">
+            {{ challenge.teams }} teams
+          </td>
+          <td class="px-6 py-4 text-sm text-indigo-600">
+            {{ formatDateRange(challenge.startDate, challenge.endDate) }}
+          </td>
+          <td class="px-6 py-4 text-sm font-medium">
+            <button class="text-indigo-500 hover:text-indigo-700 transition-colors duration-200">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-indigo-200 sm:px-6">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <button 
+          (click)="previousPage()" 
+          [disabled]="currentPage === 1"
+          class="relative inline-flex items-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 transition-colors duration-300"
+          [ngClass]="{'opacity-50 cursor-not-allowed': currentPage === 1}"
+        >
+          Previous
+        </button>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="isLastPage()"
+          class="ml-3 relative inline-flex items-center px-4 py-2 border border-indigo-300 text-sm font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 transition-colors duration-300"
+          [ngClass]="{'opacity-50 cursor-not-allowed': isLastPage()}"
+        >
+          Next
+        </button>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-indigo-700">
+            Showing <span class="font-medium">{{ displayedRange }}</span> challenges
+          </p>
+        </div>
+        <div>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <button 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1"
+              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-indigo-300 bg-white text-sm font-medium text-indigo-500 hover:bg-indigo-50 transition-colors duration-300"
+              [ngClass]="{'opacity-50 cursor-not-allowed': currentPage === 1}"
+            >
+              <span class="sr-only">Previous</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <button 
+              (click)="nextPage()" 
+              [disabled]="isLastPage()"
+              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-indigo-300 bg-white text-sm font-medium text-indigo-500 hover:bg-indigo-50 transition-colors duration-300"
+              [ngClass]="{'opacity-50 cursor-not-allowed': isLastPage()}"
+            >
+              <span class="sr-only">Next</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Challenge create form -->
+<div *ngIf="showCreateForm" class="container mx-auto px-4 py-6 max-w-6xl">
+  <h1 class="text-2xl font-bold text-indigo-900 mb-2">Create Challenge</h1>
+  <p class="text-sm text-indigo-500 mb-6">Set up a new coding challenge for participants</p>
+
+  <div class="mb-6 flex justify-end space-x-3">
+    <button (click)="saveDraft()" class="flex items-center px-4 py-2 border border-indigo-300 rounded-md shadow-sm text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50 transition-colors duration-300">
+      <svg class="mr-2 h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+      </svg>
+      Save Draft
+    </button>
+    <button (click)="publishChallenge()" class="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300">
+      <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      Publish Challenge
+    </button>
+  </div>
+
+  <form [formGroup]="challengeForm">
+    <!-- Tab Navigation -->
+    <div class="mb-4 border-b border-indigo-200">
+      <nav class="flex -mb-px">
+        <button 
+          (click)="setActiveTab('details')" 
+          class="py-3 px-6 border-b-2 text-sm font-medium"
+          [ngClass]="activeTab === 'details' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-indigo-400 hover:text-indigo-700 hover:border-indigo-300'"
+        >
+          Challenge Details
+        </button>
+        <button 
+          (click)="setActiveTab('teamSettings')" 
+          class="py-3 px-6 border-b-2 text-sm font-medium"
+          [ngClass]="activeTab === 'teamSettings' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-indigo-400 hover:text-indigo-700 hover:border-indigo-300'"
+        >
+          Team Settings
+        </button>
+        <button 
+          (click)="setActiveTab('requirements')" 
+          class="py-3 px-6 border-b-2 text-sm font-medium"
+          [ngClass]="activeTab === 'requirements' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-indigo-400 hover:text-indigo-700 hover:border-indigo-300'"
+        >
+          Requirements
+        </button>
+        <button 
+          (click)="setActiveTab('resources')" 
+          class="py-3 px-6 border-b-2 text-sm font-medium"
+          [ngClass]="activeTab === 'resources' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-indigo-400 hover:text-indigo-700 hover:border-indigo-300'"
+        >
+          Resources
+        </button>
+        <button 
+          (click)="setActiveTab('settings')" 
+          class="py-3 px-6 border-b-2 text-sm font-medium"
+          [ngClass]="activeTab === 'settings' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-indigo-400 hover:text-indigo-700 hover:border-indigo-300'"
+        >
+          Settings
+        </button>
+      </nav>
+    </div>
+
+    <!-- Details Tab -->
+    <div *ngIf="activeTab === 'details'" class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-indigo-100">
+      <h2 class="text-lg font-semibold text-indigo-900 mb-1">Basic Information</h2>
+      <p class="text-sm text-indigo-500 mb-6">Define the core details of your challenge</p>
+
+      <div class="mb-4">
+        <label for="title" class="block text-sm font-medium text-indigo-700 mb-1">Challenge Title</label>
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          placeholder="Enter a descriptive title for your challenge"
+          class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          [ngClass]="{'border-red-500': challengeForm.get('title')?.invalid && challengeForm.get('title')?.touched}"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="shortDescription" class="block text-sm font-medium text-indigo-700 mb-1">Short Description</label>
+        <textarea
+          id="shortDescription"
+          formControlName="shortDescription"
+          placeholder="Provide a brief overview of the challenge (max 200 characters)"
+          rows="3"
+          class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          [ngClass]="{'border-red-500': challengeForm.get('shortDescription')?.invalid && challengeForm.get('shortDescription')?.touched}"
+        ></textarea>
+        <div *ngIf="challengeForm.get('shortDescription')?.value" class="text-xs text-indigo-500 mt-1">
+          {{ 200 - challengeForm.get('shortDescription')?.value.length }} characters remaining
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="category" class="block text-sm font-medium text-indigo-700 mb-1">Category</label>
+          <div class="relative">
+            <select
+              id="category"
+              formControlName="category"
+              class="block w-full pl-3 pr-10 py-2 border border-indigo-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="" disabled>Select category</option>
+              <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-500">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="difficultyLevel" class="block text-sm font-medium text-indigo-700 mb-1">Difficulty Level</label>
+          <div class="relative">
+            <select
+              id="difficultyLevel"
+              formControlName="difficultyLevel"
+              class="block w-full pl-3 pr-10 py-2 border border-indigo-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="" disabled>Select difficulty</option>
+              <option *ngFor="let level of difficultyLevels" [value]="level">{{ level }}</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-500">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="fullDescription" class="block text-sm font-medium text-indigo-700 mb-1">Full Description</label>
+        <textarea
+          id="fullDescription"
+          formControlName="fullDescription"
+          placeholder="Provide a detailed description of the challenge, including context and goals"
+          rows="6"
+          class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        ></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-indigo-700 mb-2">Tags</label>
+        <div class="flex flex-wrap gap-2 mb-2">
+          <div *ngFor="let tag of tagsArray.controls; let i = index" class="bg-indigo-100 rounded-full px-3 py-1 text-sm flex items-center text-indigo-800">
+            {{ tag.value }}
+            <button type="button" (click)="removeTag(i)" class="ml-1 text-indigo-500 hover:text-indigo-700">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <div *ngFor="let tag of availableTags" class="border border-indigo-300 rounded-full px-3 py-1 text-sm flex items-center cursor-pointer hover:bg-indigo-50 text-indigo-700" (click)="addTag(tag)">
+            + {{ tag }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Tab -->
+    <div *ngIf="activeTab === 'details'" class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-indigo-100">
+      <h2 class="text-lg font-semibold text-indigo-900 mb-1">Timeline</h2>
+      <p class="text-sm text-indigo-500 mb-6">Set the schedule for your challenge</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="startDate" class="block text-sm font-medium text-indigo-700 mb-1">Start Date</label>
+          <div class="relative">
+            <input
+              type="datetime-local"
+              id="startDate"
+              formControlName="startDate"
+              class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="endDate" class="block text-sm font-medium text-indigo-700 mb-1">End Date</label>
+          <div class="relative">
+            <input
+              type="datetime-local"
+              id="endDate"
+              formControlName="endDate"
+              class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="flex space-x-2">
+          <div class="flex-grow">
+            <label for="duration" class="block text-sm font-medium text-indigo-700 mb-1">Duration</label>
+            <input
+              type="number"
+              id="duration"
+              formControlName="duration"
+              min="1"
+              class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div class="w-24">
+            <label class="block text-sm font-medium text-indigo-700 mb-1">&nbsp;</label>
+            <div class="relative">
+              <select
+                formControlName="durationUnit"
+                class="block w-full pl-3 pr-10 py-2 border border-indigo-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="hours">hours</option>
+                <option value="days">days</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-500">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="timezone" class="block text-sm font-medium text-indigo-700 mb-1">Timezone</label>
+          <div class="relative">
+            <select
+              id="timezone"
+              formControlName="timezone"
+              class="block w-full pl-3 pr-10 py-2 border border-indigo-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-500">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h3 class="text-sm font-medium text-indigo-700 mb-2">Registration Period</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="registrationOpens" class="block text-sm font-medium text-indigo-700 mb-1">Registration Opens</label>
+            <div class="relative">
+              <input
+                type="datetime-local"
+                id="registrationOpens"
+                formControlName="registrationOpens"
+                class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="registrationCloses" class="block text-sm font-medium text-indigo-700 mb-1">Registration Closes</label>
+            <div class="relative">
+              <input
+                type="datetime-local"
+                id="registrationCloses"
+                formControlName="registrationCloses"
+                class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm placeholder-indigo-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Settings Tab -->
+    <div *ngIf="activeTab === 'teamSettings'" class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-indigo-100">
+      <h2 class="text-lg font-semibold text-indigo-900 mb-1">Team Settings</h2>
+      <p class="text-sm text-indigo-500 mb-6">Configure participation options for your challenge</p>
+
+      <div class="mb-6">
+        <div class="form-group mb-4">
+          <div class="flex items-center mb-2">
+            <input 
+              type="checkbox" 
+              id="allowTeamsToggle" 
+              formControlName="allowTeams"
+              (change)="onTeamsAllowedChange($event)"
+              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-indigo-300 rounded"
+            >
+            <label for="allowTeamsToggle" class="ml-2 block text-sm font-medium text-indigo-700">
+              Allow team participation
+            </label>
+          </div>
+          <p class="text-sm text-indigo-500 ml-6">Enable this option to allow participants to form teams for this challenge.</p>
+        </div>
+
+        <div *ngIf="challengeForm.get('allowTeams')?.value" class="ml-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="minTeamSize" class="block text-sm font-medium text-indigo-700 mb-1">Minimum Team Size</label>
+            <input
+              type="number"
+              id="minTeamSize"
+              formControlName="minTeamSize"
+              min="1"
+              class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label for="maxTeamSize" class="block text-sm font-medium text-indigo-700 mb-1">Maximum Team Size</label>
+            <input
+              type="number"
+              id="maxTeamSize"
+              formControlName="maxTeamSize"
+              min="1"
+              class="w-full px-3 py-2 border border-indigo-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div class="form-group mb-4">
+          <div class="flex items-center mb-2">
+            <input 
+              type="checkbox" 
+              id="allowSoloToggle" 
+              formControlName="allowSolo"
+              (change)="onSoloAllowedChange($event)"
+              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-indigo-300 rounded"
+            >
+            <label for="allowSoloToggle" class="ml-2 block text-sm font-medium text-indigo-700">
+              Allow solo participation
+            </label>
+          </div>
+          <p class="text-sm text-indigo-500 ml-6">Enable this option to allow participants to join this challenge individually.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder for other tabs (Requirements, Resources, Settings) -->
+    <div *ngIf="activeTab === 'requirements'">
+      <app-requirements></app-requirements>
+    </div>
+
+    <div *ngIf="activeTab === 'resources'" class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-indigo-100">
+      <app-resources></app-resources>
+    </div>
+
+    <div *ngIf="activeTab === 'settings'" class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-indigo-100">
+      <app-challenge-settings></app-challenge-settings>
+    </div>
+
+  </form>
+
+  <div class="flex justify-between mt-6">
+    <button (click)="cancelCreateForm()" class="px-4 py-2 border border-indigo-300 rounded-md shadow-sm text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50 transition-colors duration-300">
+      Cancel
+    </button>
+    <div class="flex space-x-3">
+      <button (click)="saveDraft()" class="flex items-center px-4 py-2 border border-indigo-300 rounded-md shadow-sm text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50 transition-colors duration-300">
+        <svg class="mr-2 h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+        </svg>
+        Save Draft
+      </button>
+      <button (click)="publishChallenge()" class="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300">
+        <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        Publish Challenge
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Content based on activeTab -->
+<div class="bg-white rounded-lg shadow-xl overflow-hidden">
+  <app-users *ngIf="activeTab === 'users'"></app-users>
+  <app-challenges *ngIf="activeTab === 'challenges'"></app-challenges>
+</div>

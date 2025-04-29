@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsersComponent } from './users/users.component';
+import { ChallengesComponent } from './challenges/challenges.component';
+import { HackathonFormComponent } from './hackathon-form/hackathon-form.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, UsersComponent],
+  imports: [CommonModule, UsersComponent, ChallengesComponent, HackathonFormComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
@@ -19,6 +21,8 @@ export class AdminDashboardComponent {
   
   // Add active tab tracking
   activeTab: 'users' | 'challenges' = 'users';
+  
+  showHackathonForm: boolean = false;
   
   setActiveTab(tab: 'users' | 'challenges' ) {
     this.activeTab = tab;
@@ -74,4 +78,7 @@ export class AdminDashboardComponent {
     }
   }
 
+  toggleHackathonForm(): void {
+    this.showHackathonForm = !this.showHackathonForm;
+  }
 }

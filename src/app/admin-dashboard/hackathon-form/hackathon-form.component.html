@@ -1,0 +1,276 @@
+<!-- hackathon-form.component.html -->
+<div class="min-h-screen bg-gray-50">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="text-center">
+        <h1 class="text-4xl font-extrabold tracking-tight text-white">
+          Create Your Hackathon
+        </h1>
+        <p class="mt-3 max-w-md mx-auto text-base text-indigo-100">
+          Design and launch your next great hackathon event. Set up challenges, manage participants, and create an unforgettable experience.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="form-card overflow-hidden">
+      <!-- Navigation Tabs -->
+      <div class="border-b border-gray-200 bg-white">
+        <nav class="flex -mb-px">
+          <button 
+            *ngFor="let tab of ['basic', 'schedule', 'challenges', 'prizes', 'settings']"
+            [ngClass]="{'active': activeTab === tab}" 
+            class="tab-button" 
+            (click)="setActiveTab(tab)">
+            {{ tab | titlecase }}
+          </button>
+        </nav>
+      </div>
+      
+      <!-- Form content -->
+      <form [formGroup]="hackathonForm" class="p-6 bg-white">
+        <div *ngIf="activeTab === 'basic'" class="section-transition">
+          <!-- Basic Details Tab -->
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Hackathon Information</h2>
+            <p class="text-sm text-gray-500 mb-6">Define the core details of your hackathon</p>
+
+            <div class="space-y-6">
+              <!-- Title -->
+              <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Hackathon Title</label>
+                <input
+                  type="text"
+                  id="title"
+                  formControlName="title"
+                  class="form-input"
+                  placeholder="Enter your hackathon title"
+                />
+              </div>
+
+              <!-- Tagline -->
+              <div>
+                <label for="tagline" class="block text-sm font-medium text-gray-700 mb-1">Tagline</label>
+                <input
+                  type="text"
+                  id="tagline"
+                  formControlName="tagline"
+                  class="form-input"
+                  placeholder="A short, catchy phrase describing your event"
+                />
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  id="description"
+                  formControlName="description"
+                  rows="4"
+                  class="form-input"
+                  placeholder="Describe your hackathon, its purpose, and what participants can expect"
+                ></textarea>
+              </div>
+
+              <!-- Format and Theme -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="format" class="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                  <select
+                    id="format"
+                    formControlName="format"
+                    class="form-input"
+                  >
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="In-Person">In-Person</option>
+                    <option value="Virtual">Virtual</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="theme" class="block text-sm font-medium text-gray-700 mb-1">Theme</label>
+                  <input
+                    type="text"
+                    id="theme"
+                    formControlName="theme"
+                    class="form-input"
+                    placeholder="Main theme or focus area"
+                  />
+                </div>
+              </div>
+
+              <!-- Tags -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Tags</label>
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <span *ngFor="let tag of selectedTags" class="tag">
+                    {{ tag }}
+                    <button type="button" (click)="removeTag(tag)" class="tag-remove">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-input"
+                    placeholder="+ Add Tag"
+                    (keydown)="addCustomTag($event)"
+                  />
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button 
+                    *ngFor="let tag of availableTags"
+                    type="button"
+                    (click)="addTag(tag)"
+                    [disabled]="selectedTags.includes(tag)"
+                    [ngClass]="{
+                      'bg-gray-100 text-gray-400 cursor-not-allowed': selectedTags.includes(tag),
+                      'bg-gray-100 text-gray-600 hover:bg-gray-200': !selectedTags.includes(tag)
+                    }"
+                    class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-300"
+                  >
+                    {{ tag }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location & Venue -->
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Location & Venue</h2>
+            <p class="text-sm text-gray-500 mb-6">Specify where your hackathon will take place</p>
+
+            <div class="space-y-6">
+              <!-- Virtual Platform -->
+              <div class="form-card p-5">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">Virtual Platform</h3>
+                    <p class="text-sm text-gray-500">Enable online participation</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="virtualEnabled" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
+                </div>
+                <div *ngIf="hackathonForm.get('virtualEnabled')?.value" class="slide-up">
+                  <label for="virtualUrl" class="block text-sm font-medium text-gray-700 mb-1">Virtual Platform URL</label>
+                  <input
+                    type="url"
+                    id="virtualUrl"
+                    formControlName="virtualUrl"
+                    class="form-input"
+                    placeholder="https://your-virtual-platform.com"
+                  />
+                </div>
+              </div>
+
+              <!-- Physical Venue -->
+              <div class="form-card p-5">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">Physical Venue</h3>
+                    <p class="text-sm text-gray-500">Enable in-person participation</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="physicalEnabled" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
+                </div>
+                
+                <div *ngIf="hackathonForm.get('physicalEnabled')?.value" class="slide-up space-y-4">
+                  <div>
+                    <label for="venueName" class="block text-sm font-medium text-gray-700 mb-1">Venue Name</label>
+                    <input
+                      type="text"
+                      id="venueName"
+                      formControlName="venueName"
+                      class="form-input"
+                      placeholder="Conference center, university, etc."
+                    />
+                  </div>
+
+                  <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea
+                      id="address"
+                      formControlName="address"
+                      rows="2"
+                      class="form-input"
+                      placeholder="Full address of the venue"
+                    ></textarea>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                      <input
+                        type="text"
+                        id="city"
+                        formControlName="city"
+                        class="form-input"
+                      />
+                    </div>
+                    <div>
+                      <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                      <input
+                        type="text"
+                        id="state"
+                        formControlName="state"
+                        class="form-input"
+                      />
+                    </div>
+                    <div>
+                      <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                      <select
+                        id="country"
+                        formControlName="country"
+                        class="form-input"
+                      >
+                        <option value="United States">United States</option>
+                        <option value="Canada">Canada</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="India">India</option>
+                        <option value="Japan">Japan</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Venue Capacity</label>
+                    <input
+                      type="number"
+                      id="capacity"
+                      formControlName="capacity"
+                      min="1"
+                      class="form-input"
+                      placeholder="Maximum number of participants"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Placeholder for other tabs -->
+        <div *ngIf="activeTab !== 'basic'" class="py-12 flex items-center justify-center">
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">{{ activeTab | titlecase }} content</h3>
+            <p class="mt-1 text-sm text-gray-500">This tab is under development. Please check back later.</p>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
